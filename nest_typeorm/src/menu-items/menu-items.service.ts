@@ -86,6 +86,29 @@ export class MenuItemsService {
     ]
   */
   async getMenuItems() {
+    const menuItems = await this.menuItemRepository.find();
+
+    const buildMenu = (parentId: number | null) => {
+      const items = [];
+      for (const menuItem of menuItems) {
+        if (menuItem.parentId === parentId) {
+          const children: any[] = buildMenu(menuItem.id);
+          const menuItemDto = {
+            id: menuItem.id,
+            name: menuItem.name,
+            url: menuItem.url,
+            parentId: menuItem.parentId,
+            createdAt: menuItem.createdAt,
+            children,
+          };
+          items.push(menuItemDto);
+        }
+      }
+      return items;
+    };
+
+    const rootMenuItems = buildMenu(null);
+    return rootMenuItems;
     throw new Error('TODO in task 3');
   }
 }
